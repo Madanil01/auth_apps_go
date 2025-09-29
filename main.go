@@ -55,18 +55,18 @@ import (
 var app *fiber.App
 
 func init() {
-	// Load env
+	// load env
 	if err := godotenv.Load(); err != nil {
-		log.Println("⚠️ No .env file found, using environment variables only")
+		log.Println("⚠️ No .env file found")
 	}
 
-	// Connect DB
+	// connect db
 	database.ConnectDB()
 
-	// Init Fiber
+	// fiber init
 	app = fiber.New()
 
-	// Middleware
+	// middleware
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     os.Getenv("ALLOW_ORIGIN"),
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
@@ -74,15 +74,17 @@ func init() {
 		AllowCredentials: true,
 	}))
 
-	// Static
-	app.Static("/uploads", "./uploads")
+	// test route
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello from Fiber on Vercel!")
+	})
 
-	// Routes
+	// your routes
 	routes.Setup(app)
 	routes.AuthRoute(app)
 }
 
-// ✅ Vercel handler (tidak pakai app.Listen)
+// ✅ entry point untuk vercel
 func Handler() *fiber.App {
 	return app
-} 
+}
