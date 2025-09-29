@@ -11,11 +11,11 @@ import (
 var DB *gorm.DB
 func ConnectDB(){
 	env := os.Getenv("APP_ENV") // misal APP_ENV=local / dev / prod
-	host:="host.docker.internal"
+	host:=os.Getenv("DB_HOST")
 	if env == "local" || env == "development" {
-		host="localhost"
+		host=os.Getenv("DB_HOST")
 	}
-	dsn := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
+	dsn := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=require",
         os.Getenv("DB_USER"),
         os.Getenv("DB_PASS"),
         os.Getenv("DB_NAME"),
