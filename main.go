@@ -41,50 +41,41 @@
 package main
 
 import (
-	"log"
-	"os"
-
+	"github.com/gofiber/fiber/v2"
 	"apps_v1/database"
 	"apps_v1/routes"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"log"
+	"os"
 )
 
 var app *fiber.App
 
 func init() {
-	// load env
-	if err := godotenv.Load(); err != nil {
-		log.Println("⚠️ No .env file found")
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file")
 	}
 
-	// connect db
+	var ALLOW_ORIGIN string = os.Getenv("ALLOW_ORIGIN")
 	database.ConnectDB()
 
-	// fiber init
 	app = fiber.New()
-
-	// middleware
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     os.Getenv("ALLOW_ORIGIN"),
+		AllowOrigins:     ALLOW_ORIGIN,
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders:     "Authorization, Content-Type",
 		AllowCredentials: true,
 	}))
+	app.Static("/uploads", "./uploads")
 
-	// test route
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello from Fiber on Vercel!")
-	})
-
-	// your routes
+	// routes
 	routes.Setup(app)
 	routes.AuthRoute(app)
 }
 
-// ✅ entry point untuk vercel
+// ✅ Vercel expects an exported function
 func Handler() *fiber.App {
 	return app
 }
